@@ -6,9 +6,10 @@ import kotlin.reflect.KClass
 class Entity(val uuid: UUID) {
     private val components: MutableList<Component> = mutableListOf()
 
-    fun addComponent(component: Component) {
+    fun addComponent(component: Component): Entity {
         this.components.add(component)
         component.notifyAdded(this)
+        return this
     }
 
     fun removeComponent(component: Component) {
