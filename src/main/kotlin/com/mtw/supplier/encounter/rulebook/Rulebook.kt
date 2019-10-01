@@ -1,8 +1,7 @@
 package com.mtw.supplier.encounter.rulebook
 
-import com.mtw.supplier.ecs.Entity
 import com.mtw.supplier.ecs.components.EncounterLocationComponent
-import com.mtw.supplier.encounter.EncounterMap
+import com.mtw.supplier.encounter.map.EncounterMap
 import com.mtw.supplier.encounter.rulebook.actions.MoveAction
 import org.slf4j.LoggerFactory
 
@@ -22,11 +21,9 @@ object Rulebook {
         val currentNodeId = action.actor
             .getComponent(EncounterLocationComponent::class)
             .locationNodeId
-        val currentNode = encounterMap.getNode(currentNodeId)
-        val targetNode = encounterMap.getNode(action.targetNodeId)
 
-        val targetNodeHasRoom = !encounterMap.isFull(targetNode)
-        val targetNodeReachable = currentNode.exits.contains(targetNode)
+        val targetNodeHasRoom = encounterMap.getNodeHasRoom(action.actor, action.targetNodeId)
+        val targetNodeReachable = encounterMap.getNodeDirectlyConnected(currentNodeId, action.targetNodeId)
 
         if (targetNodeHasRoom && targetNodeReachable) {
             encounterMap.relocateEntity(action.actor, action.targetNodeId)

@@ -4,6 +4,7 @@ import com.mtw.supplier.ecs.Entity
 
 internal class EncounterNode(
     val id: Int,
+    val name: String,
     var size: Int,
     val entities: MutableList<Entity> = mutableListOf(),
     val exits: MutableList<EncounterNode> = mutableListOf()

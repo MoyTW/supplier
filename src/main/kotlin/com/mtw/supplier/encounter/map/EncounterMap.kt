@@ -2,7 +2,6 @@ package com.mtw.supplier.encounter.map
 
 import com.mtw.supplier.ecs.Entity
 import com.mtw.supplier.ecs.components.EncounterLocationComponent
-import java.lang.IllegalArgumentException
 
 class EncounterMap {
     private val nodes: MutableMap<Int, EncounterNode> = mutableMapOf()
@@ -20,6 +19,27 @@ class EncounterMap {
         return nodes.flatMap { n -> n.value.entities }
     }
 
+    fun getNodeName(nodeId: Int): String {
+        return this.getNode(nodeId).name
+    }
+
+    fun getNodeOccupiedSize(nodeId: Int): Int {
+        return this.getNode(nodeId).getOccupiedSize()
+    }
+
+    fun getNodeMaxSize(nodeId: Int): Int {
+        return this.getNode(nodeId).size
+    }
+
+    // TODO: Entity sizing & ZOC Rules
+    fun getNodeHasRoom(entity: Entity, nodeId: Int): Boolean {
+        return this.getNodeOccupiedSize(nodeId) < this.getNodeMaxSize(nodeId)
+    }
+
+    fun getNodeDirectlyConnected(startNodeId: Int, endNodeId: Int): Boolean {
+        return this.getNode(startNodeId).exits.any { it.id == endNodeId }
+    }
+
     private fun getNode(nodeId: Int): EncounterNode {
         return this.nodes[nodeId] ?: throw NoSuchNodeException("Node id=$nodeId is not a node in this map!")
     }
@@ -29,28 +49,29 @@ class EncounterMap {
      * @throws EntityAlreadyHasLocation when a node already has a location
      * @throws NodeHasInsufficientSpaceException when node cannot find space for the entity
      */
-    fun placeEntity(entity: Entity, nodeId: Int) {
-        val node = this.getNode(nodeId)
-
+    fun placeEntity(entity: Entity, nodeId: Int): EncounterMap {
         if (entity.hasComponent(EncounterLocationComponent::class)) {
             throw EntityAlreadyHasLocation("Specified entity ${entity.uuid} already has a location, cannot be placed!")
-        } else if (node.getOccupiedSize() >= node.size) {
+        } else if (!this.getNodeHasRoom(entity, nodeId)) {
             throw NodeHasInsufficientSpaceException("Node $nodeId is full, cannot place ${entity.uuid}")
         }
 
-        node.entities.add(entity)
+        this.getNode(nodeId).entities.add(entity)
         entity.addComponent(EncounterLocationComponent(nodeId))
+        return this
     }
     class EntityAlreadyHasLocation(message: String): Exception(message)
     class NodeHasInsufficientSpaceException(message: String): Exception(message)
 
-    fun removeEntity(entity: Entity) {
+    fun removeEntity(entity: Entity): EncounterMap {
         if (!entity.hasComponent(EncounterLocationComponent::class)) {
             throw EntityHasNoLocation("Specified entity ${entity.uuid} has no location, cannot remove!")
         }
+
         val locationComponent = entity.getComponent(EncounterLocationComponent::class)
         this.getNode(locationComponent.locationNodeId).entities.remove(entity)
         entity.removeComponent(locationComponent)
+        return this
     }
     class EntityHasNoLocation(message: String): Exception(message)
 
