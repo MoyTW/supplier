@@ -40,6 +40,10 @@ class EncounterMap {
         return this.getNode(startNodeId).exits.any { it.id == endNodeId }
     }
 
+    fun getDirectlyConnectedNodes(nodeId: Int): List<Int> {
+        return this.getNode(nodeId).exits.map { it.id }
+    }
+
     private fun getNode(nodeId: Int): EncounterNode {
         return this.nodes[nodeId] ?: throw NoSuchNodeException("Node id=$nodeId is not a node in this map!")
     }

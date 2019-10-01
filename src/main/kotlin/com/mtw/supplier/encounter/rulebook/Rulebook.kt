@@ -22,13 +22,19 @@ object Rulebook {
             .getComponent(EncounterLocationComponent::class)
             .locationNodeId
 
+        val targetNodeSameAsCurrentNode = currentNodeId == action.targetNodeId
         val targetNodeHasRoom = encounterMap.getNodeHasRoom(action.actor, action.targetNodeId)
         val targetNodeReachable = encounterMap.getNodeDirectlyConnected(currentNodeId, action.targetNodeId)
 
-        if (targetNodeHasRoom && targetNodeReachable) {
-            encounterMap.relocateEntity(action.actor, action.targetNodeId)
+        if (targetNodeSameAsCurrentNode) {
+            logger.info("[MOVE]:[INVALID] Target node [${encounterMap.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] and source node are identical!")
+        } else if (!targetNodeHasRoom) {
+            logger.info("[MOVE]:[INVALID] Target node [${encounterMap.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] full!")
+        } else if (!targetNodeReachable) {
+            logger.info("[MOVE]:[INVALID] Target node [${encounterMap.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] not adjacent!")
         } else {
-            logger.info("Move action not valid!")
+            encounterMap.relocateEntity(action.actor, action.targetNodeId)
+            logger.info("[MOVE]:[SUCCESS] [${encounterMap.getNodeName(currentNodeId)}, $currentNodeId] to [${encounterMap.getNodeName(action.targetNodeId)}, ${action.targetNodeId}]")
         }
     }
 }
