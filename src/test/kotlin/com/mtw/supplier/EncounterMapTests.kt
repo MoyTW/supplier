@@ -29,24 +29,34 @@ class EncounterMapTests {
             .addComponent(FighterComponent(100, 100))
 
         // Build nodes
-        val temple = EncounterNode(1, "temple", 3)
-        val bridge = EncounterNode(2, "bridge", 2)
-        val plains = EncounterNode(3, "plains", 8)
+        val temple = EncounterNode(111, "temple", 3)
+        val templeBridge = EncounterNode(222, "templeBridge", 2)
+        val centerBridge = EncounterNode(333, "centerBridge", 2)
+        val plainsBridge = EncounterNode(444, "plainsBridge", 2)
+        val plains = EncounterNode(555, "plains", 8)
 
         // Link nodes
         // TODO: private exits
-        temple.exits.add(bridge)
-        bridge.exits.add(temple)
+        temple.exits.add(templeBridge)
+        templeBridge.exits.add(temple)
 
-        plains.exits.add(bridge)
-        bridge.exits.add(plains)
+        templeBridge.exits.add(centerBridge)
+        centerBridge.exits.add(templeBridge)
+
+        centerBridge.exits.add(plainsBridge)
+        plainsBridge.exits.add(centerBridge)
+
+        plains.exits.add(plainsBridge)
+        plainsBridge.exits.add(plains)
 
         val encounterMap = EncounterMap()
             .addNode(temple)
-            .addNode(bridge)
+            .addNode(templeBridge)
+            .addNode(centerBridge)
+            .addNode(plainsBridge)
             .addNode(plains)
             .placeEntity(fighterOne, temple.id)
-            .placeEntity(fighterTwo, bridge.id)
+            .placeEntity(fighterTwo, plains.id)
         val encounterRunner = EncounterRunner(encounterMap)
         encounterRunner.runTurn()
         System.out.println("#####")
