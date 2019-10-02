@@ -37,17 +37,23 @@ class AIComponent: Component() {
 
     private fun dfsRecurse(startNode: Int, endNode: Int, encounterMap: EncounterMap, visitedNodes: Set<Int>): MutableList<Int>? {
         val exits = encounterMap.getDirectlyConnectedNodes(startNode)
-        for (exitId in exits) {
-            if (exitId == endNode) {
-                return mutableListOf(endNode, startNode)
-            } else if (exitId !in visitedNodes) {
-                val newVisitedNodes = visitedNodes.toMutableSet()
-                newVisitedNodes.add(startNode)
-                val recurseResult = dfsRecurse(exitId, endNode, encounterMap, newVisitedNodes)
-                recurseResult?.add(startNode)
-                return recurseResult
+
+        return when {
+            startNode == endNode -> mutableListOf(startNode)
+            exits.isEmpty() -> null
+            else -> return exits.map { exitId ->
+                if (exitId !in visitedNodes) {
+                    val newVisitedNodes = visitedNodes.toMutableSet() // this should copy it!
+                    newVisitedNodes.add(startNode)
+                    val recurseResult = dfsRecurse(exitId, endNode, encounterMap, newVisitedNodes)
+                    recurseResult?.add(startNode)
+                    recurseResult
+                } else {
+                    null
+                }
+            }.firstOrNull {
+                it != null
             }
         }
-        return null
     }
 }
