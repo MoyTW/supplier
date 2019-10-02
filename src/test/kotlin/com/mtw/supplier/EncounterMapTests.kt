@@ -11,7 +11,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
-import java.util.*
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
@@ -19,11 +18,11 @@ class EncounterMapTests {
 
     @Test
     fun doesStuff() {
-        val fighterOne = Entity(UUID.randomUUID())
+        val fighterOne = Entity(1, "badFighter")
             .addComponent(AIComponent())
             .addComponent(HpComponent(5, 5))
             .addComponent(FighterComponent(5, 5, 5))
-        val fighterTwo = Entity(UUID.randomUUID())
+        val fighterTwo = Entity(2, "goodFighter")
             .addComponent(AIComponent())
             .addComponent(HpComponent(5, 5))
             .addComponent(FighterComponent(5, 100, 100))

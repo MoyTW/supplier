@@ -54,7 +54,7 @@ object Rulebook {
 
         // TODO: Range & visibility & such
         if (!encounterMap.getNodeDirectlyConnected(attackerNodeId, defenderNodeId)) {
-            logger.info("[ATTACK]:[INVALID] [${action.actor.uuid}] cannot reach [${action.target.uuid}]")
+            logger.info("[ATTACK]:[INVALID] [${action.actor.name}] cannot reach [${action.target.name}]")
         } else {
             val attackerFighter = attacker.getComponent(FighterComponent::class)
             val defenderFighter = defender.getComponent(FighterComponent::class)
@@ -67,22 +67,22 @@ object Rulebook {
             val modifiedAttackRoll = d100Roll + attackerFighter.toHit - defenderFighter.toDodge
             when {
                 modifiedAttackRoll < 30 -> {
-                    logger.info("[ATTACK]:[MISS] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.uuid}] missed [${action.target.uuid}]")
+                    logger.info("[ATTACK]:[MISS] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.name}] missed [${action.target.name}]")
                 }
                 modifiedAttackRoll in 31..50 -> {
                     val damage = ceil(attackerFighter.hitDamage * .5).roundToInt()
                     defender.getComponent(HpComponent::class).removeHp(damage)
-                    logger.info("[ATTACK]:[GRAZE] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.uuid}] grazed [${action.target.uuid}] for $damage damage!")
+                    logger.info("[ATTACK]:[GRAZE] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.name}] grazed [${action.target.name}] for $damage damage!")
                 }
                 modifiedAttackRoll in 51..100 -> {
                     val damage = attackerFighter.hitDamage
                     defender.getComponent(HpComponent::class).removeHp(damage)
-                    logger.info("[ATTACK]:[HIT] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.uuid}] hit [${action.target.uuid}] for $damage damage!")
+                    logger.info("[ATTACK]:[HIT] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.name}] hit [${action.target.name}] for $damage damage!")
                 }
                 modifiedAttackRoll > 100 -> {
                     val damage = ceil(attackerFighter.hitDamage * 1.25).roundToInt()
                     defender.getComponent(HpComponent::class).removeHp(damage)
-                    logger.info("[ATTACK]:[CRIT] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.uuid}] critically hit [${action.target.uuid}] for $damage damage!")
+                    logger.info("[ATTACK]:[CRIT] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.name}] critically hit [${action.target.name}] for $damage damage!")
                 }
             }
         }

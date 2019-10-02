@@ -1,9 +1,11 @@
 package com.mtw.supplier.ecs
 
-import java.util.UUID
 import kotlin.reflect.KClass
 
-class Entity(val uuid: UUID) {
+class Entity(
+    val id: Int,
+    val name: String
+) {
     private val components: MutableList<Component> = mutableListOf()
 
     fun addComponent(component: Component): Entity {

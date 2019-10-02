@@ -55,9 +55,9 @@ class EncounterMap {
      */
     fun placeEntity(entity: Entity, nodeId: Int): EncounterMap {
         if (entity.hasComponent(EncounterLocationComponent::class)) {
-            throw EntityAlreadyHasLocation("Specified entity ${entity.uuid} already has a location, cannot be placed!")
+            throw EntityAlreadyHasLocation("Specified entity ${entity.name} already has a location, cannot be placed!")
         } else if (!this.getNodeHasRoom(entity, nodeId)) {
-            throw NodeHasInsufficientSpaceException("Node $nodeId is full, cannot place ${entity.uuid}")
+            throw NodeHasInsufficientSpaceException("Node $nodeId is full, cannot place ${entity.name}")
         }
 
         this.getNode(nodeId).entities.add(entity)
@@ -69,7 +69,7 @@ class EncounterMap {
 
     fun removeEntity(entity: Entity): EncounterMap {
         if (!entity.hasComponent(EncounterLocationComponent::class)) {
-            throw EntityHasNoLocation("Specified entity ${entity.uuid} has no location, cannot remove!")
+            throw EntityHasNoLocation("Specified entity ${entity.name} has no location, cannot remove!")
         }
 
         val locationComponent = entity.getComponent(EncounterLocationComponent::class)
