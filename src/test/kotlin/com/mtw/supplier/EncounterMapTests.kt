@@ -22,11 +22,11 @@ class EncounterMapTests {
         val fighterOne = Entity(UUID.randomUUID())
             .addComponent(AIComponent())
             .addComponent(HpComponent(5, 5))
-            .addComponent(FighterComponent(5, 5))
+            .addComponent(FighterComponent(5, 5, 5))
         val fighterTwo = Entity(UUID.randomUUID())
             .addComponent(AIComponent())
             .addComponent(HpComponent(5, 5))
-            .addComponent(FighterComponent(100, 100))
+            .addComponent(FighterComponent(5, 100, 100))
 
         // Build nodes
         val temple = EncounterNode(111, "temple", 3)
@@ -46,8 +46,8 @@ class EncounterMapTests {
         centerBridge.exits.add(plainsBridge)
         plainsBridge.exits.add(centerBridge)
 
-        plains.exits.add(plainsBridge)
         plainsBridge.exits.add(plains)
+        plains.exits.add(plainsBridge)
 
         val encounterMap = EncounterMap()
             .addNode(temple)
@@ -59,7 +59,9 @@ class EncounterMapTests {
             .placeEntity(fighterTwo, plains.id)
         val encounterRunner = EncounterRunner(encounterMap)
         encounterRunner.runTurn()
-        System.out.println("#####")
+        encounterRunner.runTurn()
+        encounterRunner.runTurn()
+        encounterRunner.runTurn()
     }
 
 }

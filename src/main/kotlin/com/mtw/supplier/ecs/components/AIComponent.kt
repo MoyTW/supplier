@@ -3,6 +3,7 @@ package com.mtw.supplier.ecs.components
 import com.mtw.supplier.ecs.Component
 import com.mtw.supplier.encounter.map.EncounterMap
 import com.mtw.supplier.encounter.rulebook.Action
+import com.mtw.supplier.encounter.rulebook.actions.AttackAction
 import com.mtw.supplier.encounter.rulebook.actions.MoveAction
 import com.mtw.supplier.encounter.rulebook.actions.WaitAction
 
@@ -18,11 +19,16 @@ class AIComponent: Component() {
             .getComponent(EncounterLocationComponent::class)
             .locationNodeId
 
-        val pathToFirstOtherEntity = badDepthFirstSearch(parentLocation, firstOtherEntityLocation, encounterMap)
-        return if (pathToFirstOtherEntity != null) {
-            MoveAction(this.parent, pathToFirstOtherEntity[pathToFirstOtherEntity.size - 2])
-        } else {
-            WaitAction(this.parent)
+        // wow ugly!
+        return if (encounterMap.getNodeDirectlyConnected(parentLocation, firstOtherEntityLocation)) {
+            AttackAction(this.parent, firstOtherEntity)
+        } else  {
+            val pathToFirstOtherEntity = badDepthFirstSearch(parentLocation, firstOtherEntityLocation, encounterMap)
+            if (pathToFirstOtherEntity != null) {
+                MoveAction(this.parent, pathToFirstOtherEntity[pathToFirstOtherEntity.size - 2])
+            } else {
+                WaitAction(this.parent)
+            }
         }
     }
 
