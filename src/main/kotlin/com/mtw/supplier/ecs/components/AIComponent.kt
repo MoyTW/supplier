@@ -10,18 +10,18 @@ import com.mtw.supplier.encounter.rulebook.actions.WaitAction
 class AIComponent: Component() {
     fun decideNextAction(encounterMap: EncounterMap): Action {
         // TODO: All of this is a placeholder
-        val firstOtherEntity = encounterMap.getEntities()
-            .firstOrNull { it != this.parent }
+        val firstOtherAliveEntity = encounterMap.getEntities()
+            .firstOrNull { it != this.parent && it.hasComponent(AIComponent::class)}
             ?: return WaitAction(this.parent)
 
         val parentLocation = this.parent.getComponent(EncounterLocationComponent::class).locationNodeId
-        val firstOtherEntityLocation = firstOtherEntity
+        val firstOtherEntityLocation = firstOtherAliveEntity
             .getComponent(EncounterLocationComponent::class)
             .locationNodeId
 
         // wow ugly!
         return if (encounterMap.getNodeDirectlyConnected(parentLocation, firstOtherEntityLocation)) {
-            AttackAction(this.parent, firstOtherEntity)
+            AttackAction(this.parent, firstOtherAliveEntity)
         } else  {
             val pathToFirstOtherEntity = badDepthFirstSearch(parentLocation, firstOtherEntityLocation, encounterMap)
             if (pathToFirstOtherEntity != null) {

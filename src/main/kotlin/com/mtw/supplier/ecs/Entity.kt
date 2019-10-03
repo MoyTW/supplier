@@ -15,8 +15,15 @@ class Entity(
     }
 
     fun removeComponent(component: Component) {
+        if (component !in components) {
+            throw ComponentNotFoundException("Could not find component of type ${component::class} in entity [$name,$id]")
+        }
         this.components.remove(component)
         component.notifyRemoved()
+    }
+
+    fun <T: Component> removeComponent(clazz: KClass<T>) {
+        this.removeComponent(this.getComponent(clazz))
     }
 
     fun hasComponent(componentClass: KClass<*>): Boolean {
@@ -25,6 +32,10 @@ class Entity(
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Component> getComponent(clazz: KClass<T>): T {
-        return components.first { clazz.isInstance(it) } as T
+        val first = components.firstOrNull { clazz.isInstance(it) }
+            ?: throw ComponentNotFoundException("Could not find component of type $clazz in entity [$name,$id]")
+        return first as T
     }
+
+    class ComponentNotFoundException(message: String): Exception(message)
 }

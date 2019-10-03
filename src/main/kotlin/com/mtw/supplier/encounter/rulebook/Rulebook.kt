@@ -1,12 +1,14 @@
 package com.mtw.supplier.encounter.rulebook
 
 import com.mtw.supplier.ecs.Entity
+import com.mtw.supplier.ecs.components.AIComponent
 import com.mtw.supplier.ecs.components.EncounterLocationComponent
 import com.mtw.supplier.ecs.components.FighterComponent
 import com.mtw.supplier.ecs.components.HpComponent
 import com.mtw.supplier.encounter.map.EncounterMap
 import com.mtw.supplier.encounter.rulebook.actions.AttackAction
 import com.mtw.supplier.encounter.rulebook.actions.MoveAction
+import com.mtw.supplier.encounter.rulebook.actions.WaitAction
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.math.ceil
@@ -17,14 +19,14 @@ object Rulebook {
 
     fun resolveAction(action: Action, encounterMap: EncounterMap) {
         when (action.actionType) {
-            ActionType.MOVE -> resolveMove(action as MoveAction, encounterMap)
-            ActionType.ATTACK -> resolveAttack(action as AttackAction, encounterMap)
+            ActionType.MOVE -> resolveMoveAction(action as MoveAction, encounterMap)
+            ActionType.ATTACK -> resolveAttackAction(action as AttackAction, encounterMap)
             ActionType.USE_ITEM -> TODO()
-            ActionType.WAIT -> TODO()
+            ActionType.WAIT -> resolveWaitAction(action as WaitAction)
         }
     }
 
-    private fun resolveMove(action: MoveAction, encounterMap: EncounterMap) {
+    private fun resolveMoveAction(action: MoveAction, encounterMap: EncounterMap) {
         val currentNodeId = action.actor
             .getComponent(EncounterLocationComponent::class)
             .locationNodeId
@@ -45,7 +47,7 @@ object Rulebook {
         }
     }
 
-    private fun resolveAttack(action: AttackAction, encounterMap: EncounterMap) {
+    private fun resolveAttackAction(action: AttackAction, encounterMap: EncounterMap) {
         val attacker = action.actor
         val attackerNodeId = attacker.getComponent(EncounterLocationComponent::class).locationNodeId
 
@@ -71,20 +73,35 @@ object Rulebook {
                 }
                 modifiedAttackRoll in 31..50 -> {
                     val damage = ceil(attackerFighter.hitDamage * .5).roundToInt()
-                    defender.getComponent(HpComponent::class).removeHp(damage)
                     logger.info("[ATTACK]:[GRAZE] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.name}] grazed [${action.target.name}] for $damage damage!")
+                    applyDamage(damage, defender)
                 }
                 modifiedAttackRoll in 51..100 -> {
                     val damage = attackerFighter.hitDamage
-                    defender.getComponent(HpComponent::class).removeHp(damage)
                     logger.info("[ATTACK]:[HIT] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.name}] hit [${action.target.name}] for $damage damage!")
+                    applyDamage(damage, defender)
                 }
                 modifiedAttackRoll > 100 -> {
                     val damage = ceil(attackerFighter.hitDamage * 1.25).roundToInt()
-                    defender.getComponent(HpComponent::class).removeHp(damage)
                     logger.info("[ATTACK]:[CRIT] (raw=$d100Roll,final=$modifiedAttackRoll) [${action.actor.name}] critically hit [${action.target.name}] for $damage damage!")
+                    applyDamage(damage, defender)
                 }
             }
         }
+    }
+
+    // TODO: Better rules
+    private fun applyDamage(damage: Int, entity: Entity) {
+        val hpComponent = entity.getComponent(HpComponent::class)
+        hpComponent.removeHp(damage)
+        if (hpComponent.currentHp < 0) {
+            // TODO: "No AI == dead" is a sketchy definition of dead!
+            entity.removeComponent(AIComponent::class)
+            logger.info("<EVENT>:<DEATH> [${entity.name}] is dead!")
+        }
+    }
+
+    private fun resolveWaitAction(action: WaitAction) {
+        logger.info("[WAIT]:[SUCCESS] [${action.actor.name}] is waiting!")
     }
 }
