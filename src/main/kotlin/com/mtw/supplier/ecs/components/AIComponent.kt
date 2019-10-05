@@ -9,7 +9,7 @@ import com.mtw.supplier.encounter.rulebook.actions.WaitAction
 import kotlinx.serialization.Serializable
 
 @Serializable
-class AIComponent: Component() {
+class AIComponent(override var _parentId: Int? = null) : Component() {
     fun decideNextAction(encounterMap: EncounterMap): Action {
         val parentEntity = encounterMap.getEntity(this.parentId)
         // TODO: All of this is a placeholder

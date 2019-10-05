@@ -5,7 +5,7 @@ import java.lang.UnsupportedOperationException
 
 @Serializable
 abstract class Component {
-    private var _parentId: Int? = null
+    abstract var _parentId: Int?
 
     val parentId: Int
         get() = _parentId!!

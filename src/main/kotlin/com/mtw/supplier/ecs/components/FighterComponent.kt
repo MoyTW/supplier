@@ -7,5 +7,6 @@ import kotlinx.serialization.Serializable
 class FighterComponent(
     var hitDamage: Int,
     var toHit: Int,
-    var toDodge: Int
+    var toDodge: Int,
+    override var _parentId: Int? = null
 ): Component()
