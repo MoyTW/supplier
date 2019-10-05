@@ -2,8 +2,11 @@ package com.mtw.supplier.encounter.map
 
 import com.mtw.supplier.ecs.Entity
 import com.mtw.supplier.ecs.components.EncounterLocationComponent
+import com.mtw.supplier.region.RegionalFactionRegistry
 
-class EncounterMap {
+class EncounterMap(
+    val factionRegistry: RegionalFactionRegistry
+) {
     private val nodes: MutableMap<Int, EncounterNode> = mutableMapOf()
 
     internal fun addNode(node: EncounterNode): EncounterMap {

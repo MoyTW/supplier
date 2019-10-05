@@ -2,11 +2,14 @@ package com.mtw.supplier
 
 import com.mtw.supplier.ecs.Entity
 import com.mtw.supplier.ecs.components.AIComponent
+import com.mtw.supplier.ecs.components.FactionComponent
 import com.mtw.supplier.ecs.components.FighterComponent
 import com.mtw.supplier.ecs.components.HpComponent
 import com.mtw.supplier.encounter.map.EncounterMap
 import com.mtw.supplier.encounter.map.EncounterNode
 import com.mtw.supplier.encounter.EncounterRunner
+import com.mtw.supplier.region.RegionalFaction
+import com.mtw.supplier.region.RegionalFactionRegistry
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,14 +21,21 @@ class EncounterMapTests {
 
     @Test
     fun doesStuff() {
-        val fighterOne = Entity(1, "badFighter")
+        val registry = RegionalFactionRegistry()
+            .addFaction(RegionalFaction(0, "beasts", mutableMapOf(0 to 100.0, 1 to 10.0, 2 to -100.0)))
+            .addFaction(RegionalFaction(1, "druids", mutableMapOf(0 to 100.0, 1 to 100.0, 2 to -100.0)))
+            .addFaction(RegionalFaction(2, "mercenaries", mutableMapOf(0 to -100.0, 1 to -100.0, 2 to 10.0)))
+
+        val fighterOne = Entity(1, "wolf")
             .addComponent(AIComponent())
             .addComponent(HpComponent(5, 5))
             .addComponent(FighterComponent(5, 5, 5))
-        val fighterTwo = Entity(2, "goodFighter")
+            .addComponent(FactionComponent(0))
+        val fighterTwo = Entity(2, "strongMercenary")
             .addComponent(AIComponent())
             .addComponent(HpComponent(5, 5))
             .addComponent(FighterComponent(5, 100, 100))
+            .addComponent(FactionComponent(2))
 
         // Build nodes
         val temple = EncounterNode(111, "temple", 3)
@@ -48,7 +58,7 @@ class EncounterMapTests {
         plainsBridge.exits.add(plains)
         plains.exits.add(plainsBridge)
 
-        val encounterMap = EncounterMap()
+        val encounterMap = EncounterMap(registry)
             .addNode(temple)
             .addNode(templeBridge)
             .addNode(centerBridge)
