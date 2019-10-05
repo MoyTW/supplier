@@ -1,26 +1,28 @@
 package com.mtw.supplier.ecs
 
+import kotlinx.serialization.Serializable
 import java.lang.UnsupportedOperationException
 
+@Serializable
 abstract class Component {
-    private var _parent: Entity? = null
+    private var _parentId: Int? = null
 
-    val parent: Entity
-      get() = _parent!!
+    val parentId: Int
+        get() = _parentId!!
 
-    internal fun notifyAdded(parent: Entity) {
-        if (this._parent != null) {
+    internal fun notifyAdded(parentId: Int) {
+        if (this._parentId != null) {
             throw UnsupportedOperationException("You can't double-add a Component!")
         }
 
-        this._parent = parent
+        this._parentId = parentId
     }
 
     internal fun notifyRemoved() {
-        if (this._parent == null) {
+        if (this._parentId == null) {
             throw UnsupportedOperationException("You can't remove a component that's never been added!")
         }
 
-        this._parent = null
+        this._parentId = null
     }
 }

@@ -19,6 +19,11 @@ class EncounterMap {
         return nodes.flatMap { n -> n.value.entities }
     }
 
+    fun getEntity(entityId: Int): Entity {
+        return getEntities().firstOrNull { it.id == entityId } ?: throw EntityIdNotFoundException(entityId)
+    }
+    class EntityIdNotFoundException(entityId: Int): Exception("Entity id $entityId could not be found!")
+
     fun getNodeName(nodeId: Int): String {
         return this.getNode(nodeId).name
     }

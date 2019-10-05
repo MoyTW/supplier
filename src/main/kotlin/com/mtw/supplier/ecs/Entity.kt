@@ -1,7 +1,9 @@
 package com.mtw.supplier.ecs
 
+import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
+@Serializable
 class Entity(
     val id: Int,
     val name: String
@@ -10,7 +12,7 @@ class Entity(
 
     fun addComponent(component: Component): Entity {
         this.components.add(component)
-        component.notifyAdded(this)
+        component.notifyAdded(this.id)
         return this
     }
 

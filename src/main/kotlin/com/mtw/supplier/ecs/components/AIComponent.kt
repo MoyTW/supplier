@@ -6,28 +6,31 @@ import com.mtw.supplier.encounter.rulebook.Action
 import com.mtw.supplier.encounter.rulebook.actions.AttackAction
 import com.mtw.supplier.encounter.rulebook.actions.MoveAction
 import com.mtw.supplier.encounter.rulebook.actions.WaitAction
+import kotlinx.serialization.Serializable
 
+@Serializable
 class AIComponent: Component() {
     fun decideNextAction(encounterMap: EncounterMap): Action {
+        val parentEntity = encounterMap.getEntity(this.parentId)
         // TODO: All of this is a placeholder
         val firstOtherAliveEntity = encounterMap.getEntities()
-            .firstOrNull { it != this.parent && it.hasComponent(AIComponent::class)}
-            ?: return WaitAction(this.parent)
+            .firstOrNull { it != parentEntity && it.hasComponent(AIComponent::class)}
+            ?: return WaitAction(parentEntity)
 
-        val parentLocation = this.parent.getComponent(EncounterLocationComponent::class).locationNodeId
+        val parentLocation = parentEntity.getComponent(EncounterLocationComponent::class).locationNodeId
         val firstOtherEntityLocation = firstOtherAliveEntity
             .getComponent(EncounterLocationComponent::class)
             .locationNodeId
 
         // wow ugly!
         return if (encounterMap.getNodeDirectlyConnected(parentLocation, firstOtherEntityLocation)) {
-            AttackAction(this.parent, firstOtherAliveEntity)
+            AttackAction(parentEntity, firstOtherAliveEntity)
         } else  {
             val pathToFirstOtherEntity = badDepthFirstSearch(parentLocation, firstOtherEntityLocation, encounterMap)
             if (pathToFirstOtherEntity != null) {
-                MoveAction(this.parent, pathToFirstOtherEntity[pathToFirstOtherEntity.size - 2])
+                MoveAction(parentEntity, pathToFirstOtherEntity[pathToFirstOtherEntity.size - 2])
             } else {
-                WaitAction(this.parent)
+                WaitAction(parentEntity)
             }
         }
     }
