@@ -13,12 +13,7 @@ import kotlinx.serialization.Serializable
 class AIComponent(override var _parentId: Int? = null) : Component() {
 
     private fun parentIsHostileTo(parentEntity: Entity, otherEntity: Entity, encounterState: EncounterState): Boolean {
-        val mapFactionRegistry = encounterState.factionRegistry
-        val score = mapFactionRegistry.getRelationshipScore(
-            parentEntity.getComponent(FactionComponent::class).factionId,
-            otherEntity.getComponent(FactionComponent::class).factionId
-        )
-        return score < 0.0
+        return parentEntity.getComponent(FactionComponent::class).isHostileTo(otherEntity.id, encounterState)
     }
 
     fun decideNextAction(encounterState: EncounterState): Action {

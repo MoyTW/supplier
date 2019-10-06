@@ -58,7 +58,7 @@ class EncounterStateTests {
         plainsBridge.exits.add(plains)
         plains.exits.add(plainsBridge)
 
-        val encounterMap = EncounterState(registry)
+        val encounterState = EncounterState(registry)
             .addNode(temple)
             .addNode(templeBridge)
             .addNode(centerBridge)
@@ -66,11 +66,7 @@ class EncounterStateTests {
             .addNode(plains)
             .placeEntity(fighterOne, temple.id)
             .placeEntity(fighterTwo, plains.id)
-        val encounterRunner = EncounterRunner(encounterMap)
-        encounterRunner.runTurn()
-        encounterRunner.runTurn()
-        encounterRunner.runTurn()
-        encounterRunner.runTurn()
+        val encounterRunner = EncounterRunner()
+        encounterRunner.runEncounter(encounterState)
     }
-
 }

@@ -6,9 +6,29 @@ import com.mtw.supplier.region.RegionalFactionRegistry
 
 
 class EncounterState(
-    val factionRegistry: RegionalFactionRegistry
+    val factionRegistry: RegionalFactionRegistry,
+    private var _currentTime: Int = 1,
+    private var _completed: Boolean = false
 ) {
+    val currentTime: Int
+        get() = this._currentTime
+
+    val completed: Boolean
+        get() = this._completed
+
     private val nodes: MutableMap<Int, EncounterNode> = mutableMapOf()
+
+    fun advanceTime(timeDiff: Int = 1) {
+        this._currentTime += timeDiff
+    }
+
+    fun completeEncounter() {
+        if (this._completed) {
+            throw EncounterCannotBeCompletedTwiceException()
+        }
+        this._completed = true
+    }
+    class EncounterCannotBeCompletedTwiceException(): Exception("Encounter cannot be completed twice!")
 
     internal fun addNode(node: EncounterNode): EncounterState {
         if (node.id in this.nodes) {
@@ -28,6 +48,7 @@ class EncounterState(
     }
     class EntityIdNotFoundException(entityId: Int): Exception("Entity id $entityId could not be found!")
 
+    //<editor-fold desc="Node functions">
     fun getNodeName(nodeId: Int): String {
         return this.getNode(nodeId).name
     }
@@ -57,7 +78,9 @@ class EncounterState(
         return this.nodes[nodeId] ?: throw NoSuchNodeException("Node id=$nodeId is not a node in this map!")
     }
     class NoSuchNodeException(message: String): Exception(message)
+    //</editor-fold>
 
+    //<editor-fold desc="Entity location functions">
     /**
      * @throws EntityAlreadyHasLocation when a node already has a location
      * @throws NodeHasInsufficientSpaceException when node cannot find space for the entity
@@ -92,5 +115,6 @@ class EncounterState(
         this.removeEntity(entity)
         this.placeEntity(entity, targetNodeId)
     }
+    //</editor-fold>
 }
 
