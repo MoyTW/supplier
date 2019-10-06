@@ -1,4 +1,4 @@
-package com.mtw.supplier.encounter.map
+package com.mtw.supplier.encounter.state
 
 import com.mtw.supplier.ecs.Entity
 

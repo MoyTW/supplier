@@ -5,7 +5,7 @@ import com.mtw.supplier.ecs.components.AIComponent
 import com.mtw.supplier.ecs.components.EncounterLocationComponent
 import com.mtw.supplier.ecs.components.FighterComponent
 import com.mtw.supplier.ecs.components.HpComponent
-import com.mtw.supplier.encounter.map.EncounterMap
+import com.mtw.supplier.encounter.state.EncounterState
 import com.mtw.supplier.encounter.rulebook.actions.AttackAction
 import com.mtw.supplier.encounter.rulebook.actions.MoveAction
 import com.mtw.supplier.encounter.rulebook.actions.WaitAction
@@ -17,37 +17,37 @@ import kotlin.math.roundToInt
 object Rulebook {
     private val logger = LoggerFactory.getLogger(Rulebook::class.java)
 
-    fun resolveAction(action: Action, encounterMap: EncounterMap) {
+    fun resolveAction(action: Action, encounterState: EncounterState) {
         when (action.actionType) {
-            ActionType.MOVE -> resolveMoveAction(action as MoveAction, encounterMap)
-            ActionType.ATTACK -> resolveAttackAction(action as AttackAction, encounterMap)
+            ActionType.MOVE -> resolveMoveAction(action as MoveAction, encounterState)
+            ActionType.ATTACK -> resolveAttackAction(action as AttackAction, encounterState)
             ActionType.USE_ITEM -> TODO()
             ActionType.WAIT -> resolveWaitAction(action as WaitAction)
         }
     }
 
-    private fun resolveMoveAction(action: MoveAction, encounterMap: EncounterMap) {
+    private fun resolveMoveAction(action: MoveAction, encounterState: EncounterState) {
         val currentNodeId = action.actor
             .getComponent(EncounterLocationComponent::class)
             .locationNodeId
 
         val targetNodeSameAsCurrentNode = currentNodeId == action.targetNodeId
-        val targetNodeHasRoom = encounterMap.getNodeHasRoom(action.actor, action.targetNodeId)
-        val targetNodeReachable = encounterMap.getNodeDirectlyConnected(currentNodeId, action.targetNodeId)
+        val targetNodeHasRoom = encounterState.getNodeHasRoom(action.actor, action.targetNodeId)
+        val targetNodeReachable = encounterState.getNodeDirectlyConnected(currentNodeId, action.targetNodeId)
 
         if (targetNodeSameAsCurrentNode) {
-            logger.info("[MOVE]:[INVALID] Target node [${encounterMap.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] and source node are identical!")
+            logger.info("[MOVE]:[INVALID] Target node [${encounterState.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] and source node are identical!")
         } else if (!targetNodeHasRoom) {
-            logger.info("[MOVE]:[INVALID] Target node [${encounterMap.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] full!")
+            logger.info("[MOVE]:[INVALID] Target node [${encounterState.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] full!")
         } else if (!targetNodeReachable) {
-            logger.info("[MOVE]:[INVALID] Target node [${encounterMap.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] not adjacent!")
+            logger.info("[MOVE]:[INVALID] Target node [${encounterState.getNodeName(action.targetNodeId)}, ${action.targetNodeId}] not adjacent!")
         } else {
-            encounterMap.relocateEntity(action.actor, action.targetNodeId)
-            logger.info("[MOVE]:[SUCCESS] [${encounterMap.getNodeName(currentNodeId)}, $currentNodeId] to [${encounterMap.getNodeName(action.targetNodeId)}, ${action.targetNodeId}]")
+            encounterState.relocateEntity(action.actor, action.targetNodeId)
+            logger.info("[MOVE]:[SUCCESS] [${encounterState.getNodeName(currentNodeId)}, $currentNodeId] to [${encounterState.getNodeName(action.targetNodeId)}, ${action.targetNodeId}]")
         }
     }
 
-    private fun resolveAttackAction(action: AttackAction, encounterMap: EncounterMap) {
+    private fun resolveAttackAction(action: AttackAction, encounterState: EncounterState) {
         val attacker = action.actor
         val attackerNodeId = attacker.getComponent(EncounterLocationComponent::class).locationNodeId
 
@@ -55,7 +55,7 @@ object Rulebook {
         val defenderNodeId = defender.getComponent(EncounterLocationComponent::class).locationNodeId
 
         // TODO: Range & visibility & such
-        if (!encounterMap.getNodeDirectlyConnected(attackerNodeId, defenderNodeId)) {
+        if (!encounterState.getNodeDirectlyConnected(attackerNodeId, defenderNodeId)) {
             logger.info("[ATTACK]:[INVALID] [${action.actor.name}] cannot reach [${action.target.name}]")
         } else {
             val attackerFighter = attacker.getComponent(FighterComponent::class)

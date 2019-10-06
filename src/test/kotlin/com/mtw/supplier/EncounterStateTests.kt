@@ -5,8 +5,8 @@ import com.mtw.supplier.ecs.components.AIComponent
 import com.mtw.supplier.ecs.components.FactionComponent
 import com.mtw.supplier.ecs.components.FighterComponent
 import com.mtw.supplier.ecs.components.HpComponent
-import com.mtw.supplier.encounter.map.EncounterMap
-import com.mtw.supplier.encounter.map.EncounterNode
+import com.mtw.supplier.encounter.state.EncounterState
+import com.mtw.supplier.encounter.state.EncounterNode
 import com.mtw.supplier.encounter.EncounterRunner
 import com.mtw.supplier.region.RegionalFaction
 import com.mtw.supplier.region.RegionalFactionRegistry
@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
-class EncounterMapTests {
+class EncounterStateTests {
 
     @Test
     fun doesStuff() {
@@ -58,7 +58,7 @@ class EncounterMapTests {
         plainsBridge.exits.add(plains)
         plains.exits.add(plainsBridge)
 
-        val encounterMap = EncounterMap(registry)
+        val encounterMap = EncounterState(registry)
             .addNode(temple)
             .addNode(templeBridge)
             .addNode(centerBridge)

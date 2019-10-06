@@ -1,15 +1,16 @@
-package com.mtw.supplier.encounter.map
+package com.mtw.supplier.encounter.state
 
 import com.mtw.supplier.ecs.Entity
 import com.mtw.supplier.ecs.components.EncounterLocationComponent
 import com.mtw.supplier.region.RegionalFactionRegistry
 
-class EncounterMap(
+
+class EncounterState(
     val factionRegistry: RegionalFactionRegistry
 ) {
     private val nodes: MutableMap<Int, EncounterNode> = mutableMapOf()
 
-    internal fun addNode(node: EncounterNode): EncounterMap {
+    internal fun addNode(node: EncounterNode): EncounterState {
         if (node.id in this.nodes) {
             throw java.lang.IllegalArgumentException("Specified node id $node.id was already found in the map's nodes!")
         }
@@ -61,7 +62,7 @@ class EncounterMap(
      * @throws EntityAlreadyHasLocation when a node already has a location
      * @throws NodeHasInsufficientSpaceException when node cannot find space for the entity
      */
-    fun placeEntity(entity: Entity, nodeId: Int): EncounterMap {
+    fun placeEntity(entity: Entity, nodeId: Int): EncounterState {
         if (entity.hasComponent(EncounterLocationComponent::class)) {
             throw EntityAlreadyHasLocation("Specified entity ${entity.name} already has a location, cannot be placed!")
         } else if (!this.getNodeHasRoom(entity, nodeId)) {
@@ -75,7 +76,7 @@ class EncounterMap(
     class EntityAlreadyHasLocation(message: String): Exception(message)
     class NodeHasInsufficientSpaceException(message: String): Exception(message)
 
-    fun removeEntity(entity: Entity): EncounterMap {
+    fun removeEntity(entity: Entity): EncounterState {
         if (!entity.hasComponent(EncounterLocationComponent::class)) {
             throw EntityHasNoLocation("Specified entity ${entity.name} has no location, cannot remove!")
         }
