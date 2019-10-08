@@ -23,6 +23,7 @@ configurations {
 repositories {
 	mavenCentral()
 	jcenter()
+	maven(url = "https://jitpack.io")
 }
 
 dependencies {
@@ -36,6 +37,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib:1.3.50")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.13.0") // JVM dependency
+	implementation("com.github.Hexworks.mixite:mixite.core-jvm:2018.2.0-RELEASE")
 }
 
 tasks.withType<KotlinCompile> {
