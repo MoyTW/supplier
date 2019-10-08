@@ -1,30 +1,49 @@
 package com.mtw.supplier.region
 
+import kotlinx.serialization.Serializable
 import org.hexworks.mixite.core.api.Hexagon
 import org.hexworks.mixite.core.api.HexagonOrientation
+import org.hexworks.mixite.core.api.HexagonalGrid
 import org.hexworks.mixite.core.api.HexagonalGridBuilder
 import org.hexworks.mixite.core.api.HexagonalGridLayout
 import org.hexworks.mixite.core.api.Point
 import org.hexworks.mixite.core.api.contract.SatelliteData
 import kotlin.math.roundToInt
 
-class Region {
-    fun lol() {
+enum class HexEffects {
+    POISONOUS_TO_TOUCH_VEGETATION,
+    HYPTERGROWTJ_VEGETATION
+}
 
-        val GRID_HEIGHT = 8
-        val GRID_WIDTH = 8
-        val GRID_LAYOUT = HexagonalGridLayout.RECTANGULAR
-        val ORIENTATION = HexagonOrientation.FLAT_TOP
-        val RADIUS = 6.0
+class RegionHex(
+    val vegetationPercentage: Int,
+    val elevation: Int,
+    val hexEffects: MutableList<HexEffects> = mutableListOf(),
+    // These parameters are not used, and are vestigal SatelliteData requirements.
+    override var passable: Boolean = true,
+    override var opaque: Boolean = false,
+    override var movementCost: Double = 0.0
+) : SatelliteData {
 
-        val builder = HexagonalGridBuilder<SatelliteData>()
-            .setGridHeight(GRID_HEIGHT)
-            .setGridWidth(GRID_WIDTH)
-            .setGridLayout(GRID_LAYOUT)
-            .setOrientation(ORIENTATION)
-            .setRadius(RADIUS)
+}
 
-        val grid = builder.build()
+class Region(
+    val gridHeight: Int,
+    val gridWidth: Int,
+    val gridLayout: HexagonalGridLayout,
+    val gridOrientation: HexagonOrientation,
+    val gridHexRadius: Double = 6.0 // You shouldn't bother with this, really...
+) {
+    // The grid is always constructed!
+    val grid = HexagonalGridBuilder<RegionHex>()
+        .setGridHeight(gridHeight)
+        .setGridWidth(gridWidth)
+        .setGridLayout(gridLayout)
+        .setOrientation(gridOrientation)
+        .setRadius(gridHexRadius)
+        .build()
+
+    fun dumbDraw() {
         val pointMap = mutableMapOf<Pair<Int,Int>, Char>()
 
         grid.hexagons.forEach { recordHex(it, pointMap) }
@@ -46,7 +65,7 @@ class Region {
         return Pair(point.coordinateX.roundToInt(), point.coordinateY.roundToInt())
     }
 
-    private fun recordHex(hex: Hexagon<SatelliteData>, pointMap: MutableMap<Pair<Int,Int>, Char>) {
+    private fun recordHex(hex: Hexagon<RegionHex>, pointMap: MutableMap<Pair<Int,Int>, Char>) {
         var x: Int
         var y: Int
 
