@@ -1,12 +1,8 @@
 package com.mtw.supplier.region
 
 import kotlinx.serialization.Serializable
-import org.hexworks.mixite.core.api.Hexagon
-import org.hexworks.mixite.core.api.HexagonOrientation
-import org.hexworks.mixite.core.api.HexagonalGrid
-import org.hexworks.mixite.core.api.HexagonalGridBuilder
-import org.hexworks.mixite.core.api.HexagonalGridLayout
-import org.hexworks.mixite.core.api.Point
+import kotlinx.serialization.Transient
+import org.hexworks.mixite.core.api.*
 import org.hexworks.mixite.core.api.contract.SatelliteData
 import kotlin.math.roundToInt
 
@@ -15,6 +11,7 @@ enum class HexEffects {
     HYPTERGROWTJ_VEGETATION
 }
 
+@Serializable
 class RegionHex(
     val vegetationPercentage: Int,
     val elevation: Int,
@@ -23,10 +20,18 @@ class RegionHex(
     override var passable: Boolean = true,
     override var opaque: Boolean = false,
     override var movementCost: Double = 0.0
-) : SatelliteData {
+) : SatelliteData
 
+// Aside from the serialization thing, it's weird to refer to a [x, y, z] representation is "a coordinate".
+// ...this is possibly just me being utterly insane.
+@Serializable
+data class CubeCoordinates(val gridX: Int, val gridZ: Int) {
+    internal fun toMixiteCubeCoordinate(): CubeCoordinate {
+        return CubeCoordinate.fromCoordinates(this.gridX, this.gridZ)
+    }
 }
 
+@Serializable
 class Region(
     val gridHeight: Int,
     val gridWidth: Int,
@@ -34,14 +39,40 @@ class Region(
     val gridOrientation: HexagonOrientation,
     val gridHexRadius: Double = 6.0 // You shouldn't bother with this, really...
 ) {
-    // The grid is always constructed!
-    val grid = HexagonalGridBuilder<RegionHex>()
+    @Transient
+    private val grid = HexagonalGridBuilder<RegionHex>()
         .setGridHeight(gridHeight)
         .setGridWidth(gridWidth)
         .setGridLayout(gridLayout)
         .setOrientation(gridOrientation)
         .setRadius(gridHexRadius)
         .build()
+    private val cubeCoordinatesToRegionHexes: MutableMap<CubeCoordinates, RegionHex> = mutableMapOf()
+
+    init {
+        cubeCoordinatesToRegionHexes.map { (coordinates, hex) ->
+            setGridHexData(coordinates, hex)
+        }
+    }
+
+    private fun setGridHexData(coordinates: CubeCoordinates, hexData: RegionHex) {
+        val gridHex = grid.getByCubeCoordinate(coordinates.toMixiteCubeCoordinate())
+        if(!gridHex.isPresent) throw CoordinatesInvalidException(coordinates)
+        gridHex.get().setSatelliteData(hexData)
+    }
+
+    fun setHex(coordinates: CubeCoordinates, hex: RegionHex) {
+        setGridHexData(coordinates, hex)
+        cubeCoordinatesToRegionHexes[coordinates] = hex
+    }
+
+    fun getHex(coordinates: CubeCoordinates): RegionHex? {
+        if(!grid.containsCubeCoordinate(coordinates.toMixiteCubeCoordinate())) throw CoordinatesInvalidException(coordinates)
+        return cubeCoordinatesToRegionHexes[coordinates]
+    }
+
+    class CoordinatesInvalidException(coordinates: CubeCoordinates):
+        Exception("Coordinates [x=${coordinates.gridX}, z=${coordinates.gridZ}] are invalid!")
 
     fun dumbDraw() {
         val pointMap = mutableMapOf<Pair<Int,Int>, Char>()
