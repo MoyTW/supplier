@@ -1,18 +1,30 @@
 package com.mtw.supplier.editor
 
+import com.mtw.supplier.region.Region
+import com.mtw.supplier.region.RegionGridLayout
+import com.mtw.supplier.region.RegionGridOrientation
+import javafx.scene.Group
 import javafx.scene.layout.StackPane
 import tornadofx.*
 
 class HelloWorld : View() {
-    // global variables
-    val numCol: Int = 8
-
     // every view has a root component
-    override val root = gridpane {
-        vgap = 15.0
-        padding = insets(15)
-        for (i in 1..numCol) {
-            add(horizontalStreetPane())
+    override val root = hilarity()
+
+    fun hilarity(): Group {
+        val region = Region(5, 5, RegionGridLayout.HEXAGONAL, RegionGridOrientation.FLAT_TOP, gridHexRadius = 50.0)
+        return group {
+            region.getAllPoints().map {
+                polyline(
+                    it[0].first, it[0].second,
+                    it[1].first, it[1].second,
+                    it[2].first, it[2].second,
+                    it[3].first, it[3].second,
+                    it[4].first, it[4].second,
+                    it[5].first, it[5].second,
+                    it[0].first, it[0].second
+                )
+            }
         }
     }
 

@@ -17,7 +17,7 @@ class RegionTests {
 
     @Test
     fun testEmptyRegionSerializationToJson() {
-        val region = Region(1, 1, HexagonalGridLayout.RECTANGULAR, HexagonOrientation.FLAT_TOP)
+        val region = Region(1, 1, RegionGridLayout.RECTANGULAR, RegionGridOrientation.FLAT_TOP)
         val jsonData = json.stringify(Region.serializer(), region)
         Assert.assertEquals(
             "{\"gridHeight\":1,\"gridWidth\":1,\"gridLayout\":\"RECTANGULAR\",\"gridOrientation\":\"FLAT_TOP\",\"gridHexRadius\":6.0,\"cubeCoordinatesToRegionHexes\":[]}",
@@ -32,7 +32,7 @@ class RegionTests {
             "{\"gridX\":1,\"gridZ\":1},{\"vegetationPercentage\":1,\"elevation\":1,\"hexEffects\":[],\"passable\":true,\"opaque\":false,\"movementCost\":0.0}" +
             "]}"
 
-        val region = Region(2, 2, HexagonalGridLayout.RECTANGULAR, HexagonOrientation.FLAT_TOP)
+        val region = Region(2, 2, RegionGridLayout.RECTANGULAR, RegionGridOrientation.FLAT_TOP)
         region.setHex(CubeCoordinates(0, 0), RegionHex(50, 69))
         region.setHex(CubeCoordinates(1, 1), RegionHex(1, 1))
         val jsonData = json.stringify(Region.serializer(), region)
@@ -52,8 +52,8 @@ class RegionTests {
         val region = json.parse(Region.serializer(), jsonString)
         Assert.assertEquals(2, region.gridHeight)
         Assert.assertEquals(2, region.gridWidth)
-        Assert.assertEquals(HexagonalGridLayout.RECTANGULAR, region.gridLayout)
-        Assert.assertEquals(HexagonOrientation.FLAT_TOP, region.gridOrientation)
+        Assert.assertEquals(RegionGridLayout.RECTANGULAR, region.gridLayout)
+        Assert.assertEquals(RegionGridOrientation.FLAT_TOP, region.gridOrientation)
         Assert.assertEquals(6.0, region.gridHexRadius, 0.01)
 
         val hex00: RegionHex = region.getHex(CubeCoordinates(0, 0))!!
