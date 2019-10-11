@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.50"
+    kotlin("jvm")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.3.50"
     id("org.openjfx.javafxplugin") version "0.0.7"
 }
@@ -30,7 +30,6 @@ repositories {
 dependencies {
     compile(project(":server"))
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.3.50")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.13.0") // JVM dependency
